@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Tersakiti</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<style type="text/css">
+ /* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+</style> 
+</head>
+<body>
+<nav class="navbar navbar-light bg-light">
+	<a class="navbar-brand" href="#">Tersakiti&trade;</a>
+	<div class="btn-toolbar" role="toolbar" aria-lable="toolbar button">
+		<div class="btn-group mr-2">
+			<button class="btn btn-info" onclick="cek('adduserform', true);cek('result', false);" id="adduser">ADD USER</button>
+		</div>
+		<div class="btn-group mr-2">
+			<button class="btn btn-danger" onclick="sign_out()" id="logout">LOGOUT</button>
+		</div>
+	</div>
+</nav>
+<div class="alert alert-warning" role="alert" id="error" style="display: none;">
+	Error!
+</div>
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cek('myModal', false)">&times;</span>
+        <h2>User Details</h2>
+        <p>Email : <span id="email"></span></p>
+        <p>License : <span id="licenseuser"></span></p>
+        <p>Join : <span id="joindate"></span></p>
+        <p>Expired : <span id="expireddate"></span></p>
+        <div id="tmpmail"></div>
+    </div>
+</div>
+<div class="container">
+	<form id="login" onsubmit="sign_in()" style="display: none;">
+		<div class="form-group modal-sm mx-auto">
+			<h1 class="text-center">Please sign in</h1>
+			<label for="inputEmail" class="mt-2">Email address</label>
+			<input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+			<label for="inputPassword" class="mt-2">Password</label>
+			<input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+			<input  type="button" class="btn btn-primary btn-block mt-2" onclick="sign_in()" value="Sign in">
+			<center><p class="mt-3 mb-3 text-muted">Tersakiti&trade; &copy; 2020</p></center>
+		</div>
+	</form>
+	<form id="adduserform" style="display: none;">
+		<div class="form-group modal-sm mx-auto">
+			<h1 class="text-center">Add User</h1>
+			<label for="inputlicense" class="mt-2">User Email</label>
+			<input type="text" id="inputlicense" class="form-control" onkeypress="return event.keyCode != 13" placeholder="Plaease use real email to send license..." required autofocus>
+			<input  type="button" class="btn btn-primary btn-block mt-2" onclick="open_url('?add_user='+document.getElementById('inputlicense').value)" value="Add User">
+			<input  type="button" class="btn btn-danger btn-block mt-2" onclick="cek('adduserform', false);cek('result', true);" value="Close">
+			<center><p class="mt-3 mb-3 text-muted">Tersakiti&trade; &copy; 2020</p></center>
+		</div>
+	</form>
+	<div class="text-center mt-5" id="wait" style="display: none;">
+	  <div class="spinner-border" role="status">
+	    <span class="sr-only">Loading...</span>
+	  </div>
+	</div>
+	<div class="table-responsive" style="display: none;" id="result">
+		<h1 class="mt-3 mb-3 text-center">User List</h1>
+		<table class="table table-bordered" id="userlist">
+			<thead>
+				<tr>
+					<th scope="col">Email <span class="badge badge-pill badge-primary" id="total"></span></th>
+					<th scope="col">Last Offline</th>
+					<th scope="col">Status <a class="badge badge-pill badge-warning" id="online"></a><a class="badge badge-pill badge-primary ml-2" id="offline"></a></th>
+					<th scope="col">Action</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/7.8.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.8.2/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.8.2/firebase-auth.js"></script>
+<script type="text/javascript">
+var _0x1aff=['Q29udGVudC10eXBl','PHNwYW4gY2xhc3M9ImJhZGdlIGJhZGdlLXBpbGwgYmFkZ2Utd2FybmluZyI+T25saW5lPC9zcGFuPgk8c3BhbiBjbGFzcz0iYmFkZ2UgYmFkZ2UtcGlsbCBiYWRnZS1kYW5nZXIiIHN0eWxlPSJvcGFjaXR5OiAxO3RyYW5zaXRpb246IGFsbCAwLjI1czsiPg==','KSI+RGV0YWlsPC9idXR0b24+','dGFyZ2V0','c3VjY2VzcyBkZWxldGUgdXNlcg==','ZGF0YWJhc2U=','JmpvaW49','YmxvY2s=','ZW1haWw=','bXlNb2RhbA==','ZXhwaXJlZGRhdGU=','dmFsdWU=','RXJyb3Igc2VuZCBlbWFpbC4=','cHVzaA==','PGJ1dHRvbiBjbGFzcz0iYnRuIGJ0bi1wcmltYXJ5IiBvbmNsaWNrPSJzZW5kX2RhdGEoJw==','dmFs','Y2F0Y2g=','Y2hpbGQ=','cmVm','aHR0cHM6Ly92aXB0ZXJzYWtpdGkuMDAwd2ViaG9zdGFwcC5jb20vYWRtaW4vbWFpbC5waHA=','d2FpdA==','YWRkX3VzZXI=','YWRkdXNlcg==','cmVzcG9uc2VUZXh0','QUl6YVN5QkpENWVVVFdVamV0YldFYXVUNWhRS1ZTNjZkUXVUbExF','RVJST1IgOiA=','aHR0cHM6Ly90ZXJzYWtpdGkuZmlyZWJhc2Vpby5jb20=','cmVtb3Zl','Tm8gdXNlciBpcyBzaWduZWQgaW4=','Jywg','JmV4cGlyZWQ9','dGJvZHk=','aWRf','aW5uZXJIVE1M','VElNRVNUQU1Q','YXBwbGljYXRpb24veC13d3ctZm9ybS11cmxlbmNvZGVk','bm93','YWRtaW4uaHRtbA==','dGhlbg==','cmVzdWx0','ZGlzcGxheQ==','Z2V0','c2lnbk91dA==','dXNlcmxpc3Q=','ZW4tVVM=','am9pbg==','bG9naW4=','aW5pdGlhbGl6ZUFwcA==','c2V0UmVxdWVzdEhlYWRlcg==','a2V5','b2Zm','dGVyc2FraXRpLmFwcHNwb3QuY29t','PGJ1dHRvbiBjbGFzcz0iYnRuIGJ0bi1kYW5nZXIgYnRuLXNtIG1yLTIgbXQtMiIgb25jbGljaz0iZGVsX3VzZXIoJw==','LmluZm8vY29ubmVjdGVk','bWVzc2FnZQ==','PHNwYW4gY2xhc3M9ImJhZGdlIGJhZGdlLXBpbGwgYmFkZ2UtcHJpbWFyeSI+T2ZmbGluZTwvc3Bhbj4=','bnVtZXJpYw==','b25BdXRoU3RhdGVDaGFuZ2Vk','X3NlbGY=','aW5zZXJ0Q2VsbA==','MTo2NDc5MjY4NTkyMzQ6d2ViOmU5Y2E2MmIzMDNiMDM3ZTQ5YTI1YmI=','bG9nb3V0','b25saW5l','bm9uZQ==','c2hvcnQ=','c3R5bGU=','c2VuZA==','bG9jYXRpb24=','c2lnbkluV2l0aEVtYWlsQW5kUGFzc3dvcmQ=','UE9TVA==','NjQ3OTI2ODU5MjM0','Z2V0RWxlbWVudEJ5SWQ=','Y29kZQ==','c3RhdHVz','ZXJyb3I=','dXBkYXRl','aW5zZXJ0Um93','dG9Mb2NhbGVUaW1lU3RyaW5n','IHx8IA==','dXNlcnM=','b3Blbg==','ZXhpc3Rz','b25yZWFkeXN0YXRlY2hhbmdl','b25jbGljaw==','c2VhcmNoUGFyYW1z','JykiPlNlbmQgRW1haWw8L2J1dHRvbj4=','cmVhZHlTdGF0ZQ==','bGljZW5zZXVzZXI=','PC9zcGFuPg==','YXV0aA==','dG1wbWFpbA==','U2VydmVyVmFsdWU=','JywgJw==','U2lnbi1vdXQgc3VjY2Vzc2Z1bA==','ZW1haWw9','ZXhwaXJlZA==','PGlucHV0IHR5cGU9J3RleHQnIGNsYXNzPSdmb3JtLWNvbnRyb2wnIHZhbHVlPSc='];(function(_0x2cf915,_0x43c044){var _0x5cb4ee=function(_0x2ae61d){while(--_0x2ae61d){_0x2cf915['push'](_0x2cf915['shift']());}};_0x5cb4ee(++_0x43c044);}(_0x1aff,0x7b));var _0x475c=function(_0x2cf915,_0x43c044){_0x2cf915=_0x2cf915-0x0;var _0x5cb4ee=_0x1aff[_0x2cf915];if(_0x475c['pyfvLm']===undefined){(function(){var _0x5365c9=function(){var _0x3195d4;try{_0x3195d4=Function('return\x20(function()\x20'+'{}.constructor(\x22return\x20this\x22)(\x20)'+');')();}catch(_0x447a8b){_0x3195d4=window;}return _0x3195d4;};var _0x44e7f0=_0x5365c9();var _0x1a4d93='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';_0x44e7f0['atob']||(_0x44e7f0['atob']=function(_0x47c2a5){var _0x497f6c=String(_0x47c2a5)['replace'](/=+$/,'');var _0x4c96de='';for(var _0x2a0478=0x0,_0x373244,_0x30afe2,_0x2d052a=0x0;_0x30afe2=_0x497f6c['charAt'](_0x2d052a++);~_0x30afe2&&(_0x373244=_0x2a0478%0x4?_0x373244*0x40+_0x30afe2:_0x30afe2,_0x2a0478++%0x4)?_0x4c96de+=String['fromCharCode'](0xff&_0x373244>>(-0x2*_0x2a0478&0x6)):0x0){_0x30afe2=_0x1a4d93['indexOf'](_0x30afe2);}return _0x4c96de;});}());_0x475c['IuaiZO']=function(_0x43ee5b){var _0x1030a3=atob(_0x43ee5b);var _0x3503f0=[];for(var _0x1638c7=0x0,_0x20a8af=_0x1030a3['length'];_0x1638c7<_0x20a8af;_0x1638c7++){_0x3503f0+='%'+('00'+_0x1030a3['charCodeAt'](_0x1638c7)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x3503f0);};_0x475c['vPXpzT']={};_0x475c['pyfvLm']=!![];}var _0x2ae61d=_0x475c['vPXpzT'][_0x2cf915];if(_0x2ae61d===undefined){_0x5cb4ee=_0x475c['IuaiZO'](_0x5cb4ee);_0x475c['vPXpzT'][_0x2cf915]=_0x5cb4ee;}else{_0x5cb4ee=_0x2ae61d;}return _0x5cb4ee;};var firebaseConfig={'apiKey':_0x475c('0x5f'),'authDomain':'tersakiti.firebaseapp.com','databaseURL':_0x475c('0x0'),'projectId':'tersakiti','storageBucket':_0x475c('0x19'),'messagingSenderId':_0x475c('0x2c'),'appId':_0x475c('0x22')};firebase[_0x475c('0x15')](firebaseConfig);var lastUpdate=0x0;firebase[_0x475c('0x4c')]()[_0x475c('0x59')]('/.info/serverTimeOffset')['on'](_0x475c('0x52'),function(_0x22cdfe){var _0x2e926a=_0x22cdfe[_0x475c('0x56')]()||0x0;lastUpdate=Date[_0x475c('0xa')]()+_0x2e926a;});function add_data(_0x42b122,_0x2c2a94,_0x84e03a,_0x21efff,_0x3961cd,_0x50f6d5){if(_0x50f6d5){_0x50f6d5=_0x475c('0x48')+new Date(lastUpdate)[_0x475c('0x33')](_0x475c('0x12'))+_0x475c('0x3e');if(document[_0x475c('0x2d')](_0x475c('0x6')+_0x42b122)){document[_0x475c('0x2d')](_0x475c('0x6')+_0x42b122)[_0x475c('0x1')]();}}else{_0x50f6d5=_0x475c('0x1d');}if(document[_0x475c('0x2d')](_0x42b122)){document[_0x475c('0x2d')](_0x42b122)[_0x475c('0x7')]=_0x50f6d5;}else{var _0x32fb33=document[_0x475c('0x2d')](_0x475c('0x11'))['getElementsByTagName'](_0x475c('0x5'))[0x0];var _0x284181=_0x32fb33[_0x475c('0x32')](0x0);_0x284181['id']=_0x475c('0x6')+_0x42b122;var _0x212bf3=_0x284181[_0x475c('0x21')](0x0);_0x212bf3[_0x475c('0x7')]=_0x475c('0x46')+_0x2c2a94+'\x27>';var _0x48b448=_0x284181[_0x475c('0x21')](0x1);_0x48b448[_0x475c('0x7')]=new Date(_0x3961cd)[_0x475c('0x33')](_0x475c('0x12'),{'month':_0x475c('0x26'),'day':_0x475c('0x1e')});var _0x5ab554=_0x284181['insertCell'](0x2);_0x5ab554['id']=_0x42b122;_0x5ab554[_0x475c('0x7')]=_0x50f6d5;var _0x583ca1=_0x284181[_0x475c('0x21')](0x3);_0x583ca1['innerHTML']=_0x475c('0x1a')+_0x42b122+'\x27)\x22>Delete</button><button\x20class=\x22btn\x20btn-info\x20btn-sm\x20mr-2\x20mt-2\x22\x20onclick=\x22show_data(\x27'+_0x2c2a94+_0x475c('0x42')+_0x42b122+_0x475c('0x3')+_0x84e03a+',\x20'+_0x21efff+_0x475c('0x49');}}function show_data(_0x1c03c5,_0x34af44,_0x4f8868,_0x371cc4){document[_0x475c('0x2d')](_0x475c('0x50'))[_0x475c('0x27')][_0x475c('0xe')]=_0x475c('0x4e');document[_0x475c('0x2d')](_0x475c('0x4f'))[_0x475c('0x7')]=_0x1c03c5;document[_0x475c('0x2d')](_0x475c('0x3d'))[_0x475c('0x7')]=_0x34af44;var _0x1af1fa=new Date(_0x4f8868)[_0x475c('0x33')](_0x475c('0x12'),{'month':_0x475c('0x26'),'day':'numeric','year':_0x475c('0x1e')});document[_0x475c('0x2d')]('joindate')[_0x475c('0x7')]=_0x1af1fa;var _0x1cc47d=new Date(_0x371cc4)[_0x475c('0x33')](_0x475c('0x12'),{'month':_0x475c('0x26'),'day':_0x475c('0x1e'),'year':_0x475c('0x1e')});document['getElementById'](_0x475c('0x51'))[_0x475c('0x7')]=_0x1cc47d;document[_0x475c('0x2d')](_0x475c('0x40'))['innerHTML']=_0x475c('0x55')+_0x1c03c5+_0x475c('0x42')+_0x34af44+_0x475c('0x42')+_0x1af1fa+_0x475c('0x42')+_0x1cc47d+_0x475c('0x3b');}function send_data(_0x52494c,_0xa51973,_0x2f2f67,_0x6e6678){var _0x1a6ce8=new XMLHttpRequest();var _0x2d8b03=_0x475c('0x5a');var _0x572cd4=_0x475c('0x44')+_0x52494c+_0x475c('0x4d')+_0x2f2f67+_0x475c('0x4')+_0x6e6678+'&license='+_0xa51973;_0x1a6ce8[_0x475c('0x36')](_0x475c('0x2b'),_0x2d8b03,!![]);_0x1a6ce8[_0x475c('0x16')](_0x475c('0x47'),_0x475c('0x9'));_0x1a6ce8[_0x475c('0x38')]=function(){if(_0x1a6ce8[_0x475c('0x3c')]==0x4&&_0x1a6ce8[_0x475c('0x2f')]==0xc8){err(_0x1a6ce8[_0x475c('0x5e')]);cek('wait',![]);window[_0x475c('0x36')]('',_0x475c('0x20'));}else{err(_0x475c('0x53'));}};_0x1a6ce8[_0x475c('0x28')](_0x572cd4);cek(_0x475c('0x50'),![]);cek(_0x475c('0x5b'),!![]);}function get_data(){cek(_0x475c('0x5b'),!![]);var _0x1244a4=firebase[_0x475c('0x4c')]()[_0x475c('0x59')](_0x475c('0x35'));var _0x1913c6=firebase[_0x475c('0x4c')]()[_0x475c('0x59')](_0x475c('0x1b'));_0x1913c6['on'](_0x475c('0x52'),function(_0x1d0751){if(_0x1d0751[_0x475c('0x56')]()===!![]){_0x1244a4['on'](_0x475c('0x52'),function(_0x109e8a){if(_0x109e8a[_0x475c('0x37')]()){var _0x2b2d4c=_0x109e8a[_0x475c('0x56')]();var _0x598cc1=0x0;var _0x12e0cf=0x0;var _0xa54f3c=0x0;for(var _0x575d75 in _0x2b2d4c){add_data(_0x575d75,_0x2b2d4c[_0x575d75][_0x475c('0x4f')],_0x2b2d4c[_0x575d75][_0x475c('0x13')],_0x2b2d4c[_0x575d75][_0x475c('0x45')],_0x2b2d4c[_0x575d75]['last_offline'],_0x2b2d4c[_0x575d75]['online']);if(_0x2b2d4c[_0x575d75][_0x475c('0x24')]){++_0x12e0cf;}else{++_0xa54f3c;}++_0x598cc1;}cek(_0x475c('0x5b'),![]);document[_0x475c('0x2d')]('total')[_0x475c('0x7')]=_0x598cc1;document[_0x475c('0x2d')](_0x475c('0x24'))[_0x475c('0x7')]=_0x12e0cf;document[_0x475c('0x2d')]('offline')['innerHTML']=_0xa54f3c;}},function(_0x1ee62e){err(_0x1ee62e[_0x475c('0x1c')]);});}},function(_0x44e620){err(_0x44e620[_0x475c('0x1c')]);});cek(_0x475c('0xd'),!![]);}function open_url(_0x23aebf){window[_0x475c('0x36')](window[_0x475c('0x29')]['href']+_0x23aebf,_0x475c('0x20'));}function add_user(_0x7ae9a2){cek(_0x475c('0x5b'),!![]);var _0x58c2a8=firebase[_0x475c('0x4c')]()[_0x475c('0x59')](_0x475c('0x35'));var _0x5697cb=_0x58c2a8[_0x475c('0x54')]()[_0x475c('0x17')];var _0x57c9c0=new Date();var _0x565ce8=_0x57c9c0['setMonth'](_0x57c9c0['getMonth']()+0x1);_0x58c2a8['on'](_0x475c('0x52'),function(_0x2c42f0){if(_0x2c42f0[_0x475c('0x37')]()){var _0x2ea445={};_0x2ea445[_0x5697cb]={'email':_0x7ae9a2,'join':firebase[_0x475c('0x4c')][_0x475c('0x41')][_0x475c('0x8')],'expired':_0x565ce8,'last_offline':firebase[_0x475c('0x4c')][_0x475c('0x41')][_0x475c('0x8')],'online':![]};_0x58c2a8[_0x475c('0x18')]('value');_0x58c2a8[_0x475c('0x31')](_0x2ea445);cek(_0x475c('0x5b'),![]);err('success\x20add\x20user');cek(_0x475c('0x5b'),![]);window[_0x475c('0x36')](_0x475c('0xb'),_0x475c('0x20'));}},function(_0x393af2){err(_0x393af2[_0x475c('0x1c')]);});}function del_user(_0x444539){var _0x5b9599=firebase['database']()['ref'](_0x475c('0x35'));_0x5b9599['on'](_0x475c('0x52'),function(_0x28edc3){if(_0x28edc3[_0x475c('0x37')]()){_0x5b9599[_0x475c('0x58')](_0x444539)['remove']();cek(_0x475c('0x5b'),![]);err(_0x475c('0x4b'));_0x5b9599[_0x475c('0x18')]('value');window[_0x475c('0x36')](_0x475c('0xb'),'_self');}},function(_0x2a19d7){err(_0x2a19d7[_0x475c('0x1c')]);});}function cek(_0x3f18af,_0x403482){if(_0x403482){document[_0x475c('0x2d')](_0x3f18af)[_0x475c('0x27')]['display']=_0x475c('0x4e');}else{document[_0x475c('0x2d')](_0x3f18af)[_0x475c('0x27')][_0x475c('0xe')]=_0x475c('0x25');}}function err(_0x4ec246){document[_0x475c('0x2d')]('error')[_0x475c('0x7')]=_0x4ec246;document[_0x475c('0x2d')](_0x475c('0x30'))[_0x475c('0x27')][_0x475c('0xe')]='block';}function sign_in(){cek(_0x475c('0x5b'),!![]);var _0x437187=document['getElementById']('inputEmail')[_0x475c('0x52')];var _0x4f1461=document[_0x475c('0x2d')]('inputPassword')[_0x475c('0x52')];firebase[_0x475c('0x3f')]()[_0x475c('0x2a')](_0x437187,_0x4f1461)[_0x475c('0x57')](function(_0x184d0c){err(_0x475c('0x60')+_0x184d0c[_0x475c('0x2e')]+_0x475c('0x34')+_0x184d0c[_0x475c('0x1c')]);cek(_0x475c('0x5b'),![]);});}function get_user(){var _0x299718=new URL(window[_0x475c('0x29')]['href']);var _0x29217c=_0x299718[_0x475c('0x3a')][_0x475c('0xf')](_0x475c('0x5c'));return _0x29217c;}var unsubscribe=firebase[_0x475c('0x3f')]()[_0x475c('0x1f')](function(_0x58417e){if(_0x58417e){cek(_0x475c('0x14'),![]);cek('error',![]);cek(_0x475c('0x23'),!![]);cek(_0x475c('0x5d'),!![]);if(get_user()!=null){add_user(get_user());}else{get_data();}}else{cek(_0x475c('0x14'),!![]);cek(_0x475c('0x23'),![]);cek(_0x475c('0x5d'),![]);err(_0x475c('0x2'));}});function sign_out(){firebase[_0x475c('0x3f')]()[_0x475c('0x10')]()[_0x475c('0xc')](function(){err(_0x475c('0x43'));open_url('');})['catch'](function(_0x46b235){err('An\x20error\x20happened');open_url('');});}window[_0x475c('0x39')]=function(_0x45c285){var _0x34f096=document['getElementById'](_0x475c('0x50'));if(_0x45c285[_0x475c('0x4a')]==_0x34f096){_0x34f096[_0x475c('0x27')][_0x475c('0xe')]=_0x475c('0x25');}};
+</script>
+</body>
+</html>
