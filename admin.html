@@ -108,6 +108,11 @@
 			<h1 class="text-center">Add User</h1>
 			<label for="inputEmailUser" class="mt-2">User Email</label>
 			<input type="text" id="inputEmailUser" class="form-control" onkeypress="return event.keyCode != 13" placeholder="Plaease use real email to send license..." required autofocus>
+			<select class="form-control mt-2" id="waktu">
+                		<option>1 week</option>
+                		<option>2 week</option>
+                		<option selected>1 month</option>
+            		</select>
 			<input type="button" class="btn btn-primary btn-block mt-2" onclick="add_user(document.getElementById('inputEmailUser').value)" value="Add User">
 			<input  type="button" class="btn btn-danger btn-block mt-2" onclick="cek('adduserform', false);cek('result', true);" value="Close">
 			<center><p class="mt-3 mb-3 text-muted">Tersakiti&trade; &copy; 2020</p></center>
